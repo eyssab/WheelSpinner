@@ -1,2 +1,2 @@
 # WheelSpinner
-small WheelSpinner project made using LibGdx
+2D LibGdx Wheel Spinner written in Java
