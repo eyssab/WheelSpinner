@@ -1,6 +1,5 @@
 package com.mygdx.game;
 
-import box2dLight.Light;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -9,10 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.VertexArray;
-import com.badlogic.gdx.math.EarClippingTriangulator;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -22,153 +18,186 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.ShortArray;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import com.badlogic.gdx.math.MathUtils;
+
+import static com.badlogic.gdx.math.MathUtils.cosDeg;
+import static com.badlogic.gdx.math.MathUtils.sinDeg;
+import static java.lang.Math.abs;
 
 public class WheelSpinner extends ApplicationAdapter {
-  private SpriteBatch batch;
-  private Texture LineImage;
-  private TextureRegion radi;
-  private Array<Sprite> Line;
-  private OrthographicCamera camera;
-  private float spinTime = 0f;
-  private float decrement = 5f;
-  private boolean spin = false;
-  private ShapeRenderer triAngle;
-  private FloatArray vertices;
-  private Array<FloatArray> vertexArr;
-  private Texture slice;
-  private PolygonSprite polySprite;
-  private PolygonSpriteBatch polyBatch;
+	private SpriteBatch batch;
+	private Texture LineImage;
+	private Texture WheelImage;
+	private Circle wheel;
+	private TextureRegion radi;
+	private Array<Sprite> Line;
+	private OrthographicCamera camera;
+	private float spinTime = 0f;
+	private float decrement = 5f;
+	private boolean spin = false;
+	private ShapeRenderer triAngle;
+	private FloatArray vertices;
+	private Array<FloatArray> vertexArr;
+	private Texture slice;
+	private PolygonSprite polySprite;
+	private PolygonSpriteBatch polyBatch;
+	private Array<PolygonSprite> polysArray;
+	private Vector2 preVert;
+	private Vector2 nextVert;
 
-  @Override
-  public void create () {
-     batch = new SpriteBatch();
-     LineImage = new Texture("Line.png");
+	@Override
+	public void create () {
+		batch = new SpriteBatch();
+		WheelImage = new Texture("border.png");
+		LineImage = new Texture("Line.png");
 
-     camera = new OrthographicCamera();
-     camera.setToOrtho(false, 800, 800);
-     batch = new SpriteBatch();
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false, 800, 800);
+		batch = new SpriteBatch();
 
-     Line = new Array<Sprite>();
-     spawnLine();
-     spawnLine();
-     spawnLine();
-     spawnLine();
-     spawnLine();
-     spawnLine();
-     spawnLine();
+		Line = new Array<Sprite>();
+		spawnLine();
+		spawnLine();
+		spawnLine();
+		spawnLine();
+		spawnLine();
+		spawnLine();
+		spawnLine();
+		spawnLine();
 
-     rotateR(Line);
+		rotateR(Line);
 
-     triAngle = new ShapeRenderer();
+		vertexArr = new Array<FloatArray>();
 
-     //Adding all sets of vertices
-     vertexArr = new Array<FloatArray>(20);
-     for(int i = 0;i<6;i++) {
-        vertices = new FloatArray(new float[]{vertexCalc(Line.get(0).getRotation()).x,vertexCalc(Line.get(0).getRotation()).y, 400, 406, vertexCalc(Line.get(1).getRotation()).x,vertexCalc(Line.get(1).getRotation()).y});
-        vertexArr.add(vertices);
-     }
+		//Adding all sets of vertices
+		float pies = 8;
+		float degreePer = (360)/(pies);
 
-     //STOLEN CODE from https://www.youtube.com/watch?v=UL_XQLu6sPQ (THIS CODE ONLY FILLS AND COLORS THE POLYGONS
-     polyBatch = new PolygonSpriteBatch();
+		for(int i = 0;i<pies;i++) {
+		System.out.println(degreePer);
+			vertices = new FloatArray(new float[]{vertexCalc(degreePer).x, vertexCalc(degreePer).y, 400,406,vertexCalc(0).x,vertexCalc(0).y, vertexCalc(degreePer/2).x,vertexCalc(degreePer/2).y, vertexCalc(degreePer/4).x,vertexCalc(degreePer/4).y, vertexCalc(degreePer/1.5f).x,vertexCalc(degreePer/1.5f).y});
+			vertexArr.add(vertices);
+		}
+		System.out.println(vertexCalc(Line.get(1).getRotation()).x);
+		System.out.println(vertexCalc(Line.get(1).getRotation()).y);
 
-     Pixmap pix = new Pixmap(1,1,Pixmap.Format.RGBA8888);
-     pix.setColor(1,0,0,1);
-     pix.fill();
 
-     slice = new Texture(pix);
+		polyBatch = new PolygonSpriteBatch();
 
-     TextureRegion textureRegion = new TextureRegion(slice);
+		Pixmap pix = new Pixmap(1,1,Pixmap.Format.RGBA8888);
+		pix.setColor(1,0,0,1);
+		pix.fill();
 
-     EarClippingTriangulator triangulator = new EarClippingTriangulator();
-     ShortArray triangleIndices = triangulator.computeTriangles(vertices);
+		slice = new Texture(pix);
 
-     PolygonRegion polyReg = new PolygonRegion(textureRegion, vertices.toArray(),triangleIndices.toArray());
+		TextureRegion textureRegion = new TextureRegion(slice);
 
-     polySprite = new PolygonSprite(polyReg);
-  }
+		EarClippingTriangulator triangulator = new EarClippingTriangulator();
 
-  @Override
-  public void render () {
-     ScreenUtils.clear(0, 0, 1, 1);
-     camera.update();
+		polysArray = new Array<PolygonSprite>();
 
-     batch.setProjectionMatrix(camera.combined);
+		for(int i = 0; i<vertexArr.size;i++) {
+			ShortArray triangleIndices = triangulator.computeTriangles(vertexArr.get(i));
+			PolygonRegion polyReg = new PolygonRegion(textureRegion, vertexArr.get(i).toArray(), triangleIndices.toArray());
+			polySprite = new PolygonSprite(polyReg);
+			polysArray.add(polySprite);
+		}
+		polyrotateR(polysArray, degreePer);
+	}
 
-     Timer timer = new Timer();
+	@Override
+	public void render () {
+		ScreenUtils.clear(0, 0, 1, 1);
+		camera.update();
 
-     batch.begin();
+		batch.setProjectionMatrix(camera.combined);
 
-     TextureRegion LineRegion = new TextureRegion(LineImage,800,800);
+		Timer timer = new Timer();
 
-     for(int i=0;i<Line.size;i++) {
-        batch.draw(LineRegion, Line.get(i).getX(), Line.get(i).getY(), Line.get(i).getOriginX(), Line.get(i).getOriginY(), Line.get(i).getWidth(), Line.get(i).getHeight(), Line.get(i).getScaleX(), Line.get(i).getScaleY(), Line.get(i).getRotation());
-     }
+		polyBatch.begin();
+		for(int i=0;i<polysArray.size;i++) {
+			polysArray.get(i).draw(polyBatch);
+			polysArray.get(i).setOrigin(400, 406f);
+		}
+		polyBatch.end();
 
-     batch.end();
+		//draw wheel background
+		batch.begin();
+		batch.draw(WheelImage, 180,185,440,440);
+		TextureRegion LineRegion = new TextureRegion(LineImage,800,800);
 
-     spinTime += Gdx.graphics.getRawDeltaTime();
+		for(int i=0;i<Line.size;i++) {
+			batch.draw(LineRegion, Line.get(i).getX(), Line.get(i).getY(), Line.get(i).getOriginX(), Line.get(i).getOriginY(), Line.get(i).getWidth(), Line.get(i).getHeight(), Line.get(i).getScaleX(), Line.get(i).getScaleY(), Line.get(i).getRotation());
+		}
 
-     if(Gdx.input.justTouched()) {
-        spinTime -=spinTime;
-        decrement = 5;
-        spin = true;
-     }
+		batch.end();
 
-     if (spinTime < 8 && spin) {
-        decrement *= 0.995;
-        rotate2(Line, decrement);
-     }
+		spinTime += Gdx.graphics.getRawDeltaTime();
 
-     polyBatch.begin();
-     polySprite.draw(polyBatch);
-     polySprite.setOrigin(400,406);
-     //polySprite.rotate(2f);
-     polyBatch.end();
-  }
+		//Spin for 8 seconds
+		if(Gdx.input.justTouched()) {
+			spinTime -=spinTime;
+			decrement = 5;
+			spin = true;
+		}
+		if (spinTime < 8 && spin) {
+			decrement *= 0.995;
+			rotate1(polysArray,decrement);
+			rotate2(Line,decrement);
+		}
+	}
 
-  private Vector2 vertexCalc(float angle){
-     float y =0;
-     float x =0;
-     x = (float) (cos(angle)*200);
-     y = (float) (sin(angle)*200);
-     Vector2 coords = new Vector2(x+400,y+400);
-     return coords;
-  }
+	private Vector2 vertexCalc(float angle){
+		float y =406;
+		float x =400;
+		x += (float) abs((cosDeg(angle))*200);
+		y += (float) abs((sinDeg(angle))*200);
+		Vector2 coords = new Vector2(x,y);
+		return coords;
+	}
 
-  private void spawnLine(){
-     Sprite Lin = new Sprite();
-     Lin.setPosition(400, 400);
-     Lin.setScale(1f, 1f);
-     Lin.setOrigin(0, 6);
-     Lin.setSize(200,12);
-     Line.add(Lin);
-  }
+	private void spawnLine(){
+		Sprite Lin = new Sprite();
+		Lin.setPosition(400, 400);
+		Lin.setScale(1f, 1f);
+		Lin.setOrigin(0, 6);
+		Lin.setSize(200,12);
+		Line.add(Lin);
+	}
 
-  private void rotateR(Array<Sprite> arr){
-     float angle = 360 / arr.size;
-     float currentAngle = 0;
-     for (int j = 1; j < arr.size; j++) {
-        arr.get(j).rotate(currentAngle+angle);
-        currentAngle += angle;
-     }
-  }
+	private void polyrotateR(Array<PolygonSprite> arr, float degrees){
+		for (int i = 0; i < arr.size; i++) {
+			arr.get(i).rotate(degrees*i);
+		}
+	}
 
-  public void rotate2(Array<Sprite> arr, float rotation){
-     for (int i = 0; i < Line.size; i++) {
-        Line.get(i).rotate(rotation);
+	private void rotateR(Array<Sprite> arr){
+		float angle = 360 / arr.size;
+		float currentAngle = 0;
+		for (int j = 1; j < arr.size; j++) {
+			arr.get(j).rotate(currentAngle+angle);
+			currentAngle += angle;
+		}
+	}
 
-     }
-  }
+	public void rotate1(Array<PolygonSprite> arr, float rotation){
+		for (int i = 0; i < arr.size; i++) {
+			arr.get(i).rotate(rotation);
+		}
+	}
+	public void rotate2(Array<Sprite> arr, float rotation){
+		for (int i = 0; i < Line.size; i++) {
+			Line.get(i).rotate(rotation);
 
-  @Override
-  public void dispose() {
-     batch.dispose();
-     LineImage.dispose();
-     slice.dispose();
-  }
+		}
+	}
+
+	@Override
+	public void dispose() {
+		batch.dispose();
+		WheelImage.dispose();
+		slice.dispose();
+	}
 }
 //:)
 // :)
-
