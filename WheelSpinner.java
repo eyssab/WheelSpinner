@@ -60,7 +60,7 @@ public class WheelSpinner extends ApplicationAdapter {
 		}
 
 		for(int i=0;i<pies;i++) {
-			FloatArray piesVertices = new FloatArray(new float[]{vertexCalc(sliceSize.get(i)).x, vertexCalc(sliceSize.get(i)).y, 400,400,vertexCalc(0).x,vertexCalc(0).y, vertexCalc(sliceSize.get(i)/2).x,vertexCalc(sliceSize.get(i)/2).y});
+			FloatArray piesVertices = new FloatArray(new float[]{vertexCalc(sliceSize.get(i)).x, vertexCalc(sliceSize.get(i)).y, 400,400,vertexCalc(0).x,vertexCalc(0).y, vertexCalc(sliceSize.get(i)*0.15f).x,vertexCalc(sliceSize.get(i)*0.15f).y, vertexCalc(sliceSize.get(i)/4).x, vertexCalc(sliceSize.get(i)/4).y, vertexCalc(sliceSize.get(i)/2).x, vertexCalc(sliceSize.get(i)/2).y, vertexCalc(sliceSize.get(i)*0.7f).x,vertexCalc(sliceSize.get(i)*0.7f).y, vertexCalc(sliceSize.get(i)*0.8f).x,vertexCalc(sliceSize.get(i)*0.8f).y});
 			vertexArr.add(piesVertices);
 		}
 
@@ -110,7 +110,7 @@ public class WheelSpinner extends ApplicationAdapter {
 		polyBatch.end();
 
 		batch.begin();
-		batch.draw(WheelImage, 180,185,440,440);
+		batch.draw(WheelImage, 183,190,432,432);
 		batch.end();
 
 		spinTime += Gdx.graphics.getRawDeltaTime();
@@ -158,3 +158,4 @@ public class WheelSpinner extends ApplicationAdapter {
 	}
 }
 //:)
+// :)
