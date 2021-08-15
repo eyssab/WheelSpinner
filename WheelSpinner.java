@@ -19,6 +19,8 @@ import static com.badlogic.gdx.math.MathUtils.*;
 public class WheelSpinner extends ApplicationAdapter {
 	private SpriteBatch batch;
 	private Texture WheelImage;
+	private Texture LineImage;
+	private Array<Sprite> Line;
 	private OrthographicCamera camera;
 	private float spinTime = 0f;
 	private float decrement = 5f;
@@ -30,6 +32,7 @@ public class WheelSpinner extends ApplicationAdapter {
 	private Array<String> texts;
 	private BitmapFont font;
 	private PolygonSprite polySprite;
+	private float multiplier = 3.6f;
 
 	//Mutable UI Variables
 	private float pies;
@@ -39,6 +42,7 @@ public class WheelSpinner extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 		WheelImage = new Texture("border.png");
+		LineImage = new Texture("Line.png");
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 800, 800);
@@ -52,24 +56,19 @@ public class WheelSpinner extends ApplicationAdapter {
 		texts.add(text);
 		font = new BitmapFont(Gdx.files.internal("default.fnt"));
 
-		//UI TABLE
+		//UI TABLE # of Pies and percentage of wheel per pie
 		pies = 7;
+		FloatArray percentages = new FloatArray(new float[]{20,10,5,5,20,15,25});
+
+		Line = new Array<Sprite>();
+		for(int i=0;i<pies;i++) {
+			spawnLine();
+		}
 
 		vertexArr = new Array<FloatArray>();
 
 		//degrees per pie
-		float multiplier = 3.6f;
 		sliceSize = new FloatArray();
-
-		FloatArray percentages = new FloatArray();
-
-		percentages.add(2);
-		percentages.add(23);
-		percentages.add(30);
-		percentages.add(24);
-		percentages.add(11);
-		percentages.add(4);
-		percentages.add(6);
 
 		for(int i=0;i<pies;i++) {
 			sliceSize.add(percentages.get(i) * multiplier);
@@ -77,11 +76,12 @@ public class WheelSpinner extends ApplicationAdapter {
 
 		System.out.println(sliceSize.get(2));
 
-		float degreeSplit = 10/pies;
 		for(int i=0;i<pies;i++) {
-			FloatArray vertices = new FloatArray(new float[]{vertexCalc(sliceSize.get(i)-degreeSplit).x, vertexCalc(sliceSize.get(i)-degreeSplit).y, 400,406,vertexCalc(degreeSplit).x,vertexCalc(degreeSplit).y, vertexCalc(sliceSize.get(i)/2).x,vertexCalc(sliceSize.get(i)/2).y});
+			FloatArray vertices = new FloatArray(new float[]{vertexCalc(sliceSize.get(i)).x, vertexCalc(sliceSize.get(i)).y, 400,401.5f,vertexCalc(0).x,vertexCalc(0).y, vertexCalc(sliceSize.get(i)/2).x,vertexCalc(sliceSize.get(i)/2).y});
 			vertexArr.add(vertices);
 		}
+
+		rotateR(Line, sliceSize);
 
 		polyBatch = new PolygonSpriteBatch();
 
@@ -124,14 +124,19 @@ public class WheelSpinner extends ApplicationAdapter {
 		polyBatch.begin();
 		for(int i=0;i<polysArray.size;i++) {
 			polysArray.get(i).draw(polyBatch);
-			polysArray.get(i).setOrigin(400, 406f);
+			polysArray.get(i).setOrigin(400, 401.5f);
 		}
 
 		polyBatch.end();
 
 		//draw wheel background
 		batch.begin();
-		batch.draw(WheelImage, 180,185,440,440);
+		//batch.draw(WheelImage, 180,185,440,440);
+		TextureRegion LineRegion = new TextureRegion(LineImage,800,800);
+
+		for(int i=0;i<Line.size;i++) {
+			batch.draw(LineRegion, Line.get(i).getX(), Line.get(i).getY(), Line.get(i).getOriginX(), Line.get(i).getOriginY(), Line.get(i).getWidth(), Line.get(i).getHeight(), Line.get(i).getScaleX(), Line.get(i).getScaleY(), Line.get(i).getRotation());
+		}
 		font.draw(batch,texts.get(0),450,450);
 		batch.end();
 
@@ -145,12 +150,13 @@ public class WheelSpinner extends ApplicationAdapter {
 		}
 		if (spinTime < random(10,15) && spin) {
 			decrement *= 0.995;
-			rotate1(polysArray,decrement);
+			rotate1(polysArray, decrement);
+			rotate2(Line, decrement);
 		}
 	}
 
 	private Vector2 vertexCalc(float angle){
-		float y =406;
+		float y =401.5f;
 		float x =400;
 		x += (float) cosDeg(angle)*200;
 		y += (float) sinDeg(angle)*200;
@@ -158,9 +164,32 @@ public class WheelSpinner extends ApplicationAdapter {
 		return coords;
 	}
 
+	private void rotateR(Array<Sprite> arr, FloatArray rotations){
+		float currentRot = 0f;
+		for (int j = 0; j < arr.size; j++) {
+			arr.get(j).rotate(currentRot + rotations.get(j));
+			currentRot += rotations.get(j);
+		}
+	}
+
+	private void spawnLine(){
+		Sprite Lin = new Sprite();
+		Lin.setPosition(400, 401.5f);
+		Lin.setScale(1f, 1f);
+		Lin.setOrigin(0, 1.5f);
+		Lin.setSize(200,3);
+		Line.add(Lin);
+	}
+
 	public void rotate1(Array<PolygonSprite> arr, float rotation){
 		for (int i = 0; i < arr.size; i++) {
 			arr.get(i).rotate(rotation);
+		}
+	}
+
+	public void rotate2(Array<Sprite> arr, float rotation){
+		for (int i = 0; i < Line.size; i++) {
+			Line.get(i).rotate(rotation);
 		}
 	}
 
