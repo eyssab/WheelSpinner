@@ -29,6 +29,7 @@ public class WheelSpinner extends ApplicationAdapter {
 	private Array<PolygonSprite> polysArray;
 	private PolygonSprite polySprite;
 	private float multiplier = 3.6f;
+	private Array<Color> colorsArray;
 
 	//Mutable UI Variables
 	private float pies;
@@ -47,6 +48,7 @@ public class WheelSpinner extends ApplicationAdapter {
 		//UI TABLE # of Pies and percentage of wheel per pie
 		pies = 7;
 		FloatArray percentages = new FloatArray(new float[]{20,10,5,5,20,15,25});
+		colorsArray = new Array<Color>(new Color[]{Color.MAROON, Color.CHARTREUSE, Color.BROWN, Color.ORANGE, Color.CORAL, Color.CYAN, Color.GOLD});
 
 		vertexArr = new Array<FloatArray>();
 
@@ -67,7 +69,7 @@ public class WheelSpinner extends ApplicationAdapter {
 		textureRegion = new Array<TextureRegion>();
 		for(int i =0;i<pies;i++) {
 			Pixmap pix = new Pixmap(1,1,Pixmap.Format.RGBA8888);
-			pix.setColor(i+0.2f,i+random(0,0.5f),i+random(0,1f),1);
+			pix.setColor(colorsArray.get(i));
 			pix.fill();
 
 			slice = new Texture(pix);
@@ -156,4 +158,3 @@ public class WheelSpinner extends ApplicationAdapter {
 	}
 }
 //:)
-// :)
