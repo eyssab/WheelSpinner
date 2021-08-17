@@ -2,15 +2,19 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import java.awt.*;
 import java.util.Timer;
 import com.badlogic.gdx.utils.ShortArray;
 import static com.badlogic.gdx.math.MathUtils.*;
@@ -18,6 +22,7 @@ import static com.badlogic.gdx.math.MathUtils.*;
 public class WheelSpinner extends ApplicationAdapter {
 	private SpriteBatch batch;
 	private Texture spinImage;
+	private Texture pauseImage;
 	private OrthographicCamera camera;
 	private float spinTime = 0f;
 	private float decrement = 5f;
@@ -34,17 +39,19 @@ public class WheelSpinner extends ApplicationAdapter {
 	public SpriteBatch spriteBatch;
 	private Array<Matrix4> mxArray;
 	private Array<TextureRegion> textureRegion;
-	private String prev = "                                            ";
-
+	private String prev = "                                        ";
 
 	//Mutable UI Variables
 	private float pies;
 	private FloatArray sliceSize;
 
+	private boolean paused;
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		spinImage = new Texture("spin.png");
+		pauseImage = new Texture("pause.jpg");
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 800, 800);
@@ -121,16 +128,26 @@ public class WheelSpinner extends ApplicationAdapter {
 			Matrix4 mx4Font = new Matrix4();
 			mx4Font.rotate(new Vector3(0, 0, 1), (sliceSize.get(i))/2+current);
 			current +=sliceSize.get(i);
-			System.out.println(current);
 			mx4Font.trn(392, 386, 0);
 			mxArray.add(mx4Font);
 		}
+
 	}
 
 	@Override
 	public void render () {
+		super.render();
 		ScreenUtils.clear(0, 0, 1, 1);
 		camera.update();
+
+		if(paused){
+			if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+				paused = false;
+			}
+		}
+		else{
+			generalUpdate();
+		}
 
 		batch.setProjectionMatrix(camera.combined);
 
@@ -145,12 +162,16 @@ public class WheelSpinner extends ApplicationAdapter {
 
 		batch.begin();
 		batch.draw(spinImage, 400-30,400-30-15,60,60);
+		if(paused){
+			decrement = 0;
+			text.set(2,prev + "ChangedText");
+		}
 		batch.end();
 
 		spinTime += Gdx.graphics.getRawDeltaTime();
 
 		//Spin for 8 seconds
-		if(Gdx.input.justTouched()) {
+		if(Gdx.input.justTouched() && paused == false) {
 			spinTime -=spinTime;
 			decrement = 5;
 			spin = true;
@@ -168,6 +189,12 @@ public class WheelSpinner extends ApplicationAdapter {
 			spriteBatch.begin();
 			font.draw(spriteBatch, text.get(i), 0, 0);
 			spriteBatch.end();
+		}
+	}
+
+	public void generalUpdate(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+			paused = true;
 		}
 	}
 
