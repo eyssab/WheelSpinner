@@ -17,7 +17,6 @@ import static com.badlogic.gdx.math.MathUtils.*;
 
 public class WheelSpinner extends ApplicationAdapter {
 	private SpriteBatch batch;
-	private Texture WheelImage;
 	private Texture spinImage;
 	private OrthographicCamera camera;
 	private float spinTime = 0f;
@@ -35,7 +34,7 @@ public class WheelSpinner extends ApplicationAdapter {
 	public SpriteBatch spriteBatch;
 	private Array<Matrix4> mxArray;
 	private Array<TextureRegion> textureRegion;
-	private String prev = "              ";
+	private String prev = "                                            ";
 
 
 	//Mutable UI Variables
@@ -45,7 +44,6 @@ public class WheelSpinner extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		WheelImage = new Texture("wheel.png");
 		spinImage = new Texture("spin.png");
 
 		camera = new OrthographicCamera();
@@ -77,7 +75,7 @@ public class WheelSpinner extends ApplicationAdapter {
 		}
 
 		for (int i = 0; i < pies; i++) {
-			FloatArray piesVertices = new FloatArray(new float[]{vertexCalc(sliceSize.get(i)).x, vertexCalc(sliceSize.get(i)).y, 400, 400, vertexCalc(0).x, vertexCalc(0).y, vertexCalc(sliceSize.get(i) * 0.15f).x, vertexCalc(sliceSize.get(i) * 0.15f).y, vertexCalc(sliceSize.get(i) / 4).x, vertexCalc(sliceSize.get(i) / 4).y, vertexCalc(sliceSize.get(i) / 2).x, vertexCalc(sliceSize.get(i) / 2).y, vertexCalc(sliceSize.get(i) * 0.7f).x, vertexCalc(sliceSize.get(i) * 0.7f).y, vertexCalc(sliceSize.get(i) * 0.8f).x, vertexCalc(sliceSize.get(i) * 0.8f).y});
+			FloatArray piesVertices = new FloatArray(new float[]{vertexCalc(sliceSize.get(i)).x, vertexCalc(sliceSize.get(i)).y, Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, vertexCalc(0).x, vertexCalc(0).y, vertexCalc(sliceSize.get(i) * 0.15f).x, vertexCalc(sliceSize.get(i) * 0.15f).y, vertexCalc(sliceSize.get(i) / 4).x, vertexCalc(sliceSize.get(i) / 4).y, vertexCalc(sliceSize.get(i) / 2).x, vertexCalc(sliceSize.get(i) / 2).y, vertexCalc(sliceSize.get(i) * 0.7f).x, vertexCalc(sliceSize.get(i) * 0.7f).y, vertexCalc(sliceSize.get(i) * 0.8f).x, vertexCalc(sliceSize.get(i) * 0.8f).y});
 			vertexArr.add(piesVertices);
 		}
 
@@ -146,8 +144,7 @@ public class WheelSpinner extends ApplicationAdapter {
 		polyBatch.end();
 
 		batch.begin();
-		batch.draw(WheelImage, 183,190,432,432);
-		batch.draw(spinImage, 370,382,60,60);
+		batch.draw(spinImage, 400-30,400-30-15,60,60);
 		batch.end();
 
 		spinTime += Gdx.graphics.getRawDeltaTime();
@@ -177,8 +174,8 @@ public class WheelSpinner extends ApplicationAdapter {
 	private Vector2 vertexCalc(float angle){
 		float y =400f;
 		float x =400;
-		x += (float) cosDeg(angle)*200;
-		y += (float) sinDeg(angle)*200;
+		x += (float) cosDeg(angle)*380;
+		y += (float) sinDeg(angle)*380;
 		Vector2 coords = new Vector2(x,y);
 		return coords;
 	}
@@ -207,7 +204,6 @@ public class WheelSpinner extends ApplicationAdapter {
 	@Override
 	public void dispose() {
 		batch.dispose();
-		WheelImage.dispose();
 		slice.dispose();
 		spinImage.dispose();
 		font.dispose();
