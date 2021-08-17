@@ -19,6 +19,7 @@ import static com.badlogic.gdx.math.MathUtils.*;
 public class WheelSpinner extends ApplicationAdapter {
 	private SpriteBatch batch;
 	private Texture WheelImage;
+	private Texture spinImage;
 	private OrthographicCamera camera;
 	private float spinTime = 0f;
 	private float decrement = 5f;
@@ -46,6 +47,7 @@ public class WheelSpinner extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 		WheelImage = new Texture("wheel.png");
+		spinImage = new Texture("spin.png");
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 800, 800);
@@ -137,6 +139,7 @@ public class WheelSpinner extends ApplicationAdapter {
 
 		batch.begin();
 		batch.draw(WheelImage, 183,190,432,432);
+		batch.draw(spinImage, 370,382,60,60);
 		batch.end();
 
 		spinTime += Gdx.graphics.getRawDeltaTime();
@@ -150,7 +153,7 @@ public class WheelSpinner extends ApplicationAdapter {
 		if (spinTime < random(10,15) && spin) {
 			decrement *= 0.995;
 			wheelSpin(polysArray, decrement);
-			textSpin(mxArray,decrement);
+			textSpin(mxArray, decrement);
 		}
 
 		spriteBatch = new SpriteBatch();
@@ -179,9 +182,9 @@ public class WheelSpinner extends ApplicationAdapter {
 	}
 
 	public void textSpin(Array<Matrix4> arr, float rotation){
+		int current =0;
 		for (int i = 0; i < arr.size; i++) {
-			arr.get(i).rotate(new Vector3(400, 400, 1),rotation);
-			mxArray.get(i).trn(392, 386, 0);
+			arr.get(i).rotate(new Vector3(0, 0, 1), rotation);
 		}
 	}
 
