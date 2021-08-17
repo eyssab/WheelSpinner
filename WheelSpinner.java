@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import java.util.Timer;
 import com.badlogic.gdx.utils.ShortArray;
-
 import static com.badlogic.gdx.math.MathUtils.*;
 
 public class WheelSpinner extends ApplicationAdapter {
@@ -36,7 +35,7 @@ public class WheelSpinner extends ApplicationAdapter {
 	public SpriteBatch spriteBatch;
 	private Array<Matrix4> mxArray;
 	private Array<TextureRegion> textureRegion;
-	private String prev = "                ";
+	private String prev = "              ";
 
 
 	//Mutable UI Variables
@@ -53,15 +52,24 @@ public class WheelSpinner extends ApplicationAdapter {
 		camera.setToOrtho(false, 800, 800);
 		batch = new SpriteBatch();
 
+		Color prevColor = new Color(Color.WHITE);
 		//UI TABLE # of Pies and percentage of wheel per pie
-		pies = 8;
-		FloatArray percentages = new FloatArray(new float[]{20, 10, 5, 5, 20, 15, 20, 5});
-		colorsArray = new Array<Color>(new Color[]{Color.MAROON, Color.CHARTREUSE, Color.BROWN, Color.ORANGE, Color.CORAL, Color.CYAN, Color.GOLD, Color.LIME});
-		text = new Array<String>(new String[]{prev + "Hola", prev +"Lemon", prev +"Lemon", prev +"Lemon", prev +"Lemon", prev +"Lemon", prev +"Lemon", prev +"Lemon"});
+		FloatArray percentages = new FloatArray(new float[]{12,8,6,4,10,6,4,9,6,12,11,12});
+		pies = percentages.size;
+		colorsArray = new Array<Color>();
+		text = new Array<String>();
 
+		for(int i =0;i<pies;i++) {
+			Color color = new Color(random(0,0.95f),random(0,0.95f),random(0,0.95f), 1);
+			colorsArray.add(color);
+			text.add(prev + "Heloa");
+			if(prevColor == color){
+				colorsArray.get(i).equals(color);
+			}
+			prevColor = new Color(color);
+		}
 		vertexArr = new Array<FloatArray>();
 
-		//degrees per pie
 		sliceSize = new FloatArray();
 
 		for (int i = 0; i < pies; i++) {
@@ -201,6 +209,8 @@ public class WheelSpinner extends ApplicationAdapter {
 		batch.dispose();
 		WheelImage.dispose();
 		slice.dispose();
+		spinImage.dispose();
+		font.dispose();
 	}
 }
 //:)
